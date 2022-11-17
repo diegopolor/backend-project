@@ -1,4 +1,4 @@
-interface checklist {
+export interface checklist {
     estado_bus: string,
     fecha_hora: string,
     aux_salida: string,
