@@ -1,5 +1,6 @@
 import Router from 'express'
 import { checklistModel } from '../models/checklist'
+import { checklist } from '../../types'
 
 const checkListRoute = Router()
 

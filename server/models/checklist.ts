@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose'
+import { checklist } from '../../types'
 
 
 const checklistSchame = new Schema<checklist> ({
