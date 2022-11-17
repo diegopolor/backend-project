@@ -3,7 +3,7 @@ import { apiRoutes } from './server/routes'
 import { connectDB } from './server/config/mongoose'
 
 const app = Express()
-const PORT = 3000
+const PORT = 80
 
 app.use(Express.json())
 
