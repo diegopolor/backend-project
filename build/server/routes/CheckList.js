@@ -13,21 +13,36 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const checklist_1 = require("../models/checklist");
+const sqlServer_1 = require("../services/sqlServer");
+const objectToSql_1 = require("../utils/objectToSql");
+const table = 'InspeccionUnidad';
+const querySelect = `SELECT * FROM ${table}`;
 const checkListRoute = (0, express_1.default)();
-checkListRoute.get('/', (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const data = yield checklist_1.checklistModel.find();
-    res.json(data);
-}));
+// Petición GET con todos los datos
+checkListRoute.get('/', (_req, res) => {
+    (0, sqlServer_1.querySQL)(querySelect).then((data) => {
+        res.status(200).json(data.recordset);
+    }).catch(() => {
+        res.status(500).json('Ha ocurrido un error en el servidor. CODIGO: 500');
+    });
+});
+//Petición POST para guardar 
 checkListRoute.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    let data = [];
-    data = (_a = req.body) === null || _a === void 0 ? void 0 : _a.data;
-    data.map((dataObject) => __awaiter(void 0, void 0, void 0, function* () {
-        const model = new checklist_1.checklistModel(dataObject);
-        const savedData = yield model.save();
-        console.log(savedData);
-    }));
-    res.json('se han guardado los datos');
+    const dataCheckList = req.body;
+    try {
+        for (let itemObject of dataCheckList) {
+            const query = (0, objectToSql_1.getInsertInto)(table, itemObject);
+            const response = yield (0, sqlServer_1.querySQL)(query);
+            console.log(response);
+        }
+        res.status(200).json({ success: 'Datos guardados con exito' });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).json({ error: 'No se han podido guardar los datos' });
+    }
+    /*dataCheckList.map(async(data)=>{
+      
+   })*/
 }));
 exports.default = checkListRoute;

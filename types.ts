@@ -6,7 +6,7 @@ export interface checklist {
     lic_conduccion: string,
     carne_arl: string,
     carne_empresa: string,
-    ruta: string
+    ruta: string,
     servicio_bus: string,
     baja_presion: string,
     falla_alternador: string,
@@ -14,7 +14,7 @@ export interface checklist {
     palanca_freno: string,
     pedal_freno: string,
     alta_tempMotor: string,
-    freno_seg: string
+    freno_seg: string,
     falla_motor: string,
     falla_ABS: string,
     bajoNivel_refrig: string,
@@ -67,3 +67,73 @@ export interface checklist {
     PMR: string,
     cinturon: string
 }
+
+
+export type checklistKeys =  
+'estado_bus'  |
+'fecha_hora'  |
+'aux_salida'  |
+'operador'  |
+'lic_conduccion'  |
+'carne_arl'  |
+'carne_empresa'  |
+'ruta'  |
+'servicio_bus'  |
+'baja_presion'  |
+'falla_alternador'  |
+'num_bus'  |
+'palanca_freno'  |
+'pedal_freno'  |
+'alta_tempMotor'  |
+'freno_seg'  |
+'falla_motor'  |
+'falla_ABS'  |
+'bajoNivel_refrig'  |
+'puertaTras_Del'  |
+'est_volanteBocina'  |
+'luces_altBajas'  |
+'tipo_servicio'  |
+'luces_laterales'  |
+'est_Panoramicos'  |
+'espejos_interExter'  |
+'TFT'  |
+'novedad_TFT'  |
+'radio'  |
+'novedades_radio'  |
+'torniquete'  |
+'validador'  |
+'rutero_frontal'  |
+'rutero_lateral'  |
+'rutero_trasero'  |
+'novedades_EquipoComuni'  |
+'matricula'  |
+'soat'  |
+'tarj_operacion'  |
+'tecnomecanica'  |
+'botiquin'  |
+'cant_extintores'  |
+'cant_conos'  |
+'novedades_varias'  |
+'medida_gas'  |
+'tec_asignado'  |
+'descrip_mant'  |
+'fecha_mant'  |
+'numero_OT'  |
+'responsable_mnto'  |
+'checklist_registro'  |
+'est_despacho'  |
+'lugar_atencion'  |
+'manometro_extintor'  |
+'PINSeguridad_extintor'  |
+'manija_extintor'  |
+'vencimiento_extintor' | 
+'boquilla_extintor'  |
+'fechaHora_Servicio'  |
+'silla_corre'  |
+'silla_subeBaja'  |
+'silla_torcida'  |
+'sillaLinea_volante'  |
+'espaldar_silla'  |
+'obs_silla'  |
+'PMR'  |
+'cinturon'

@@ -1,26 +1,36 @@
 import Router from 'express'
-import { checklistModel } from '../models/checklist'
+import { querySQL } from '../services/sqlServer'
+import { getInsertInto } from '../utils/objectToSql'
+
 import { checklist } from '../../types'
+
+const table = 'InspeccionUnidad'
+const querySelect = `SELECT * FROM ${table}`
 
 const checkListRoute = Router()
 
-checkListRoute.get('/', async (_req, res)=> {
-    const data = await checklistModel.find()
-    res.json(data)
-
+// Petición GET con todos los datos
+checkListRoute.get('/', (_req, res)=>{ 
+    querySQL(querySelect).then((data)=> {
+            res.status(200).json(data.recordset)
+    }).catch(()=>{
+        res.status(500).json('Ha ocurrido un error en el servidor. CODIGO: 500')
+    })  
 })
 
-checkListRoute.post('/', async (req, res)=> {
-    let data : Array<checklist> = []
-    data = req.body?.data
-    
-    data.map(async(dataObject) => {
-        const model = new checklistModel(dataObject)
-        const savedData = await model.save()
-        console.log(savedData)
-    })
-
-    res.json('se han guardado los datos')
+//Petición POST para guardar 
+checkListRoute.post('/', async(req, res)=> {
+    const dataCheckList: Array<checklist> = req.body
+    try{
+        for(let itemObject of dataCheckList ){
+            const query = getInsertInto(table, itemObject)
+            await querySQL(query)
+        }
+        res.status(200).json({success :'Datos guardados con exito'})
+    }catch(e){
+        console.log(e)
+        res.status(500).json({error: 'No se han podido guardar los datos'})
+    }
 })
 
 export default checkListRoute
