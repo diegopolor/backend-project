@@ -22,6 +22,7 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
 const querySQL = (sql) => __awaiter(void 0, void 0, void 0, function* () {
     const db = yield connectDB();
     const data = yield db.query(sql);
+    db.close();
     return data;
 });
 exports.querySQL = querySQL;

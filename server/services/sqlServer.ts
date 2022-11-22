@@ -10,6 +10,7 @@ const connectDB = async ()=> {
 export const querySQL = async (sql: string)=> {
         const db = await connectDB()
         const data = await db.query(sql)
+        db.close()
         return data
 }
 

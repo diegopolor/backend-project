@@ -25,7 +25,6 @@ const getInsertInto = (table, object) => {
     const valuesStringWithoutLast = valuesString.slice(0, -1);
     const columnStringWithoutLast = columnString.slice(0, -1);
     const query = `INSERT INTO ${table}(${columnStringWithoutLast}) VALUES(${valuesStringWithoutLast})`;
-    console.log(query);
     return query;
 };
 exports.getInsertInto = getInsertInto;

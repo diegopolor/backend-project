@@ -16,10 +16,10 @@ const express_1 = __importDefault(require("express"));
 const sqlServer_1 = require("../services/sqlServer");
 const objectToSql_1 = require("../utils/objectToSql");
 const table = 'InspeccionUnidad';
-const querySelect = `SELECT * FROM ${table}`;
 const checkListRoute = (0, express_1.default)();
 // Petición GET con todos los datos
 checkListRoute.get('/', (_req, res) => {
+    const querySelect = `SELECT * FROM ${table}`;
     (0, sqlServer_1.querySQL)(querySelect).then((data) => {
         res.status(200).json(data.recordset);
     }).catch(() => {
@@ -32,8 +32,8 @@ checkListRoute.post('/', (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         for (let itemObject of dataCheckList) {
             const query = (0, objectToSql_1.getInsertInto)(table, itemObject);
-            const response = yield (0, sqlServer_1.querySQL)(query);
-            console.log(response);
+            yield (0, sqlServer_1.querySQL)(query);
+            //console.log(response)
         }
         res.status(200).json({ success: 'Datos guardados con exito' });
     }
@@ -41,8 +41,5 @@ checkListRoute.post('/', (req, res) => __awaiter(void 0, void 0, void 0, functio
         console.log(e);
         res.status(500).json({ error: 'No se han podido guardar los datos' });
     }
-    /*dataCheckList.map(async(data)=>{
-      
-   })*/
 }));
 exports.default = checkListRoute;
