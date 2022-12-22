@@ -1,6 +1,6 @@
 import { listAllFilds, saveManyFields } from "./sqlServer"
 
-const table = 'InspeccionUnidad'
+const table = 'CheckList'
 
 export const listAllCheckList = async()=> {
    const { success, message, data } = await listAllFilds(table)

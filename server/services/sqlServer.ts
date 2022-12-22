@@ -13,7 +13,6 @@ const connectDB = async ()=> {
             connection
         }
     }catch(e){
-        console.log(configDB)
         console.log(e)
         return  {
             success: false,  
