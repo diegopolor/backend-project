@@ -1,8 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getInsertInto = void 0;
-// toma los valores de un objeto tipo 'checklist' y los introduce a una sentencia SQL 
-const getInsertInto = (table, object) => {
+exports.objectInLine = exports.objectToInsertInto = void 0;
+/* Convierte un objecto en campos y valores para una consulta insert into con sus respectivos tipos de datos
+para los valores a agregar.
+
+`INSERT INTO ${table}(${columnStringWithoutLast}) VALUES(${valuesStringWithoutLast})`
+
+parametros:
+    object: objeto con la información de los campos a ingresar
+
+*/
+const objectToInsertInto = (object) => {
     let columnString = '';
     let valuesString = '';
     const keys = Object.keys(object);
@@ -21,10 +29,31 @@ const getInsertInto = (table, object) => {
         }
         columnString += itemKey + ',';
     });
-    // le quita la ultima coma al texto de la consulta
+    // le quita la ultima coma al texto de los valores y campos
     const valuesStringWithoutLast = valuesString.slice(0, -1);
     const columnStringWithoutLast = columnString.slice(0, -1);
-    const query = `INSERT INTO ${table}(${columnStringWithoutLast}) VALUES(${valuesStringWithoutLast})`;
-    return query;
+    return [valuesStringWithoutLast, columnStringWithoutLast];
 };
-exports.getInsertInto = getInsertInto;
+exports.objectToInsertInto = objectToInsertInto;
+// convierte un objeto a 'key=value' y lo devuelve en un string
+const objectInLine = (keys, object) => {
+    let value = '';
+    let keyAndValues = '';
+    keys.map((key) => {
+        switch (typeof (object[key])) {
+            case 'string':
+                value += "'" + object[key] + "',";
+                break;
+            case 'boolean':
+                value += object[key] == 'true' || object[key] == true ? '1,' : '0,';
+                break;
+            default:
+                value += object[key] + ',';
+                break;
+        }
+        keyAndValues += key + '=' + value;
+        value = ' ';
+    });
+    return keyAndValues.slice(0, -1);
+};
+exports.objectInLine = objectInLine;

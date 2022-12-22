@@ -1,3 +1,14 @@
+export interface userAuth {
+    usuario: string, 
+    clave: string
+}
+
+export interface userCreate {
+    usuario: String, 
+    clave: string, 
+    rol: string
+}
+
 export interface checklist {
     estado_bus: string,
     fecha_hora: string,
@@ -68,72 +79,9 @@ export interface checklist {
     cinturon: string
 }
 
+export interface errorHandler {
+    success: boolean,
+    message: string
+}
 
-export type checklistKeys =  
-'estado_bus'  |
-'fecha_hora'  |
-'aux_salida'  |
-'operador'  |
-'lic_conduccion'  |
-'carne_arl'  |
-'carne_empresa'  |
-'ruta'  |
-'servicio_bus'  |
-'baja_presion'  |
-'falla_alternador'  |
-'num_bus'  |
-'palanca_freno'  |
-'pedal_freno'  |
-'alta_tempMotor'  |
-'freno_seg'  |
-'falla_motor'  |
-'falla_ABS'  |
-'bajoNivel_refrig'  |
-'puertaTras_Del'  |
-'est_volanteBocina'  |
-'luces_altBajas'  |
-'tipo_servicio'  |
-'luces_laterales'  |
-'est_Panoramicos'  |
-'espejos_interExter'  |
-'TFT'  |
-'novedad_TFT'  |
-'radio'  |
-'novedades_radio'  |
-'torniquete'  |
-'validador'  |
-'rutero_frontal'  |
-'rutero_lateral'  |
-'rutero_trasero'  |
-'novedades_EquipoComuni'  |
-'matricula'  |
-'soat'  |
-'tarj_operacion'  |
-'tecnomecanica'  |
-'botiquin'  |
-'cant_extintores'  |
-'cant_conos'  |
-'novedades_varias'  |
-'medida_gas'  |
-'tec_asignado'  |
-'descrip_mant'  |
-'fecha_mant'  |
-'numero_OT'  |
-'responsable_mnto'  |
-'checklist_registro'  |
-'est_despacho'  |
-'lugar_atencion'  |
-'manometro_extintor'  |
-'PINSeguridad_extintor'  |
-'manija_extintor'  |
-'vencimiento_extintor' | 
-'boquilla_extintor'  |
-'fechaHora_Servicio'  |
-'silla_corre'  |
-'silla_subeBaja'  |
-'silla_torcida'  |
-'sillaLinea_volante'  |
-'espaldar_silla'  |
-'obs_silla'  |
-'PMR'  |
-'cinturon'
+

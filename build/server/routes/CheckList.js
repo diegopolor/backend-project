@@ -13,33 +13,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const sqlServer_1 = require("../services/sqlServer");
-const objectToSql_1 = require("../utils/objectToSql");
-const table = 'InspeccionUnidad';
+const checkList_1 = require("../services/checkList");
+const authToken_1 = require("../middlewares/authToken");
 const checkListRoute = (0, express_1.default)();
 // Petición GET con todos los datos
-checkListRoute.get('/', (_req, res) => {
-    const querySelect = `SELECT * FROM ${table}`;
-    (0, sqlServer_1.querySQL)(querySelect).then((data) => {
-        res.status(200).json(data.recordset);
-    }).catch(() => {
-        res.status(500).json('Ha ocurrido un error en el servidor. CODIGO: 500');
-    });
-});
-//Petición POST para guardar 
-checkListRoute.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+checkListRoute.get('/', authToken_1.tokenVerify, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const response = yield (0, checkList_1.listAllCheckList)();
+    if (response.success) {
+        res.status(200).json({ data: response.data });
+    }
+    else
+        res.status(400).json({ error: response.message });
+}));
+checkListRoute.post('/', authToken_1.tokenVerify, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //recoge el body de la petición
     const dataCheckList = req.body;
-    try {
-        for (let itemObject of dataCheckList) {
-            const query = (0, objectToSql_1.getInsertInto)(table, itemObject);
-            yield (0, sqlServer_1.querySQL)(query);
-            //console.log(response)
-        }
-        res.status(200).json({ success: 'Datos guardados con exito' });
+    const { success, message } = yield (0, checkList_1.saveManyChecklist)(dataCheckList);
+    if (success) {
+        res.status(200).json({ message });
     }
-    catch (e) {
-        console.log(e);
-        res.status(500).json({ error: 'No se han podido guardar los datos' });
-    }
+    else
+        res.status(400).json({ message });
 }));
 exports.default = checkListRoute;
