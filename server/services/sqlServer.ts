@@ -12,7 +12,8 @@ const connectDB = async ()=> {
             message: 'Conectado a la base de datos con exito',  
             connection
         }
-    }catch{
+    }catch(e){
+        console.log(e)
         return  {
             success: false,  
             message: 'No se ha podido conectar a la base de datos'
