@@ -4,7 +4,7 @@ import cors from 'cors'
 import { apiRoutes } from './server/routes'
 
 const app = Express()
-const PORT = 3001
+const PORT = 3000
 
 app.options('*', cors())
 app.use(cors())
