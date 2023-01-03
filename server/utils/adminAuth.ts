@@ -23,7 +23,7 @@ export const adminAuthentication =  async (userAdmin: string | undefined, claveA
 
         if(isAdminPass && rolAdmin == "Admin"){   
             return { success: true, message: 'Usuario admnistrador' }
-        } else return { success : false, message: 'Contraseña incorrecta o usurio sin rol administrador.'}
+        } else return { success : false, message: 'Contraseña incorrecta o usuario sin rol administrador.'}
     }
     else
         return { success : false, message: 'No se ha encontrado el usuario.'}
