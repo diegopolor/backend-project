@@ -74,7 +74,7 @@ const saveField = (table, object) => __awaiter(void 0, void 0, void 0, function*
     // le quita la ultima coma al texto de los valores y campos
     const valuesStringWithoutLast = valuesString.slice(0, -1);
     const columnStringWithoutLast = columnString.slice(0, -1);
-    const query = `INSERT INTO ${table}(${columnStringWithoutLast}) VALUES(${valuesStringWithoutLast});`;
+    const query = `INSERT INTO ${table} (${columnStringWithoutLast}) VALUES (${valuesStringWithoutLast});`;
     const executedQuery = yield (0, exports.querySQL)(query);
     if (executedQuery.success) {
         return {
@@ -127,16 +127,27 @@ const updateField = (table, objectValues, objectWhere) => __awaiter(void 0, void
 exports.updateField = updateField;
 const listFilds = (table, columnsArray, objectWhere) => __awaiter(void 0, void 0, void 0, function* () {
     let columns = ' ';
-    columnsArray.map((item) => columns += item + ',');
-    const keysObjectWhere = Object.keys(objectWhere);
-    const whereValues = (0, objectToSql_1.objectInLine)(keysObjectWhere, objectWhere);
-    const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues};`;
-    const queryResult = yield (0, exports.querySQL)(query);
-    if (queryResult.success) {
-        return { success: true, data: queryResult.data, message: queryResult.message };
+    // concatena las columnas de la consulta y les coloca un ',' al final
+    columnsArray === null || columnsArray === void 0 ? void 0 : columnsArray.map((item) => columns += item + ',');
+    // toma las keys del objeto del where de la consulta 
+    if (Object.keys(objectWhere !== null && objectWhere !== void 0 ? objectWhere : {}).length >= 1 && columnsArray != undefined) {
+        const keysObjectWhere = Object.keys(objectWhere !== null && objectWhere !== void 0 ? objectWhere : {});
+        //convierte el objeto en formato value sql ej. key = 'value'
+        const whereValues = (0, objectToSql_1.objectInLineWhere)(keysObjectWhere, objectWhere, 'AND');
+        // concatena la consulta quitandole la ultima ',' al string de columnas
+        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues};`;
+        const queryResult = yield (0, exports.querySQL)(query);
+        if (queryResult.success) {
+            return { success: true, data: queryResult.data, message: queryResult.message };
+        }
+        else
+            return { success: false, data: undefined, message: queryResult.message };
     }
     else
-        return { success: false, data: undefined, message: queryResult.message };
+        return {
+            success: false,
+            message: 'Se debe ingresar columnas a filtrar y los valores de referencia para el filtro.'
+        };
 });
 exports.listFilds = listFilds;
 const listAllFilds = (table) => __awaiter(void 0, void 0, void 0, function* () {

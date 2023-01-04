@@ -18,23 +18,10 @@ app.use(express_1.default.json());
 app.use(express_1.default.static('public'));
 //Rutas del servidor
 (0, routes_1.apiRoutes)(app);
-app.post('/prueba', (req, res) => {
-    console.log(req.body);
-    const { fecha, hora, unidad, clave, origen, prioridad } = req.body;
-    const dataMessage = {
-        fecha,
-        hora,
-        unidad,
-        clave,
-        origen,
-        prioridad
-    };
-    (0, webSocket_1.socketNovedades)(dataMessage);
-    res.json('Prueba de socket por petición').end();
-});
 // Ruta no encontrada 404
 app.use((_req, res) => {
     res.status(404).json('Esta ruta no existe');
 });
 const server = app.listen(PORT, () => console.log(`Servidor corriendo en el puerto: ${PORT}.`));
+// asigna el socket
 (0, webSocket_1.setWebSocket)(server);

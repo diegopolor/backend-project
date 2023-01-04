@@ -1,7 +1,7 @@
 import sql from 'mssql'
 
 import configDB from "../config/database"
-import { objectInLine } from '../utils/objectToSql'
+import { objectInLine, objectInLineWhere } from '../utils/objectToSql'
 
 const connectDB = async ()=> {
     let connection : sql.ConnectionPool
@@ -61,8 +61,7 @@ export const saveField = async(table: string, object: any) => {
     // le quita la ultima coma al texto de los valores y campos
     const valuesStringWithoutLast = valuesString.slice(0, -1)
     const columnStringWithoutLast = columnString.slice(0, -1)
-    const query = `INSERT INTO ${table}(${columnStringWithoutLast}) VALUES(${valuesStringWithoutLast});`
-
+    const query = `INSERT INTO ${table} (${columnStringWithoutLast}) VALUES (${valuesStringWithoutLast});`
     const executedQuery = await querySQL(query)
 
     if(executedQuery.success){
@@ -111,20 +110,28 @@ export const updateField = async(table: string, objectValues: any, objectWhere: 
     } return {success: false, message: 'No se ha podido actualizar la información' }
 } 
 
-export const listFilds = async(table: string, columnsArray: any[], objectWhere: any) => {
-     let columns = ' '
-     columnsArray.map((item)=> columns += item + ',')
-     const keysObjectWhere = Object.keys(objectWhere)
-     const whereValues = objectInLine(keysObjectWhere, objectWhere)
-
-    const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues};`
-    const queryResult = await querySQL(query)
-
-    if(queryResult.success){
-        return { success: true, data: queryResult.data, message: queryResult.message }
-    }else return { success: false, data: undefined, message: queryResult.message }
+export const listFilds = async(table: string, columnsArray: any[], objectWhere: object) => {
+    let columns = ' '
+    // concatena las columnas de la consulta y les coloca un ',' al final
+    columnsArray?.map((item)=> columns += item + ',')
+    // toma las keys del objeto del where de la consulta 
+    if(Object.keys(objectWhere ?? {}).length >= 1 && columnsArray != undefined){
+        const keysObjectWhere = Object.keys(objectWhere ?? {})
+        //convierte el objeto en formato value sql ej. key = 'value'
+        const whereValues = objectInLineWhere(keysObjectWhere, objectWhere, 'AND')
+        
+        // concatena la consulta quitandole la ultima ',' al string de columnas
+        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues};`
+        const queryResult = await querySQL(query)
+    
+        if(queryResult.success){
+            return { success: true, data: queryResult.data, message: queryResult.message }
+        }else return { success: false, data: undefined, message: queryResult.message }
+    }else return { 
+        success: false, 
+        message: 'Se debe ingresar columnas a filtrar y los valores de referencia para el filtro.' 
+    }
 }
-
 
 export const listAllFilds = async (table: string)=> {
     const query = `SELECT * FROM ${table};`

@@ -62,3 +62,26 @@ export const objectInLine = (keys: any, object: any)=> {
 
     return keyAndValues.slice(0, -1)
 }
+
+export const objectInLineWhere = (keys: any, object: any, denotation: string)=> {
+    let value = ''
+    let keyAndValues = ''
+    
+    keys.map((key: any)=> {
+        switch (typeof(object[key])){
+            case 'string': 
+                value+=  "'" + object[key] + "' " + denotation + ' '
+                break
+            case 'boolean':
+                value+= object[key] == 'true' ||  object[key] == true ? '1 ' + denotation  + ' ': '0 ' + denotation + ' '
+                break
+            default: 
+                value+= object[key] +' '+ denotation + ' '
+                break       
+        }
+        keyAndValues += key + '=' + value
+        value = ''
+    })
+
+    return keyAndValues.slice(0, -4)
+}

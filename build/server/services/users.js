@@ -38,7 +38,7 @@ const userAuthentication = ({ usuario, clave }) => __awaiter(void 0, void 0, voi
     if (queryClave.success) {
         const rowsQuery = (_a = queryClave === null || queryClave === void 0 ? void 0 : queryClave.data) === null || _a === void 0 ? void 0 : _a.rowsAffected[0];
         if (Number(rowsQuery) > 0) {
-            const userPass = (_c = (_b = queryClave.data) === null || _b === void 0 ? void 0 : _b.recordset[0]) === null || _c === void 0 ? void 0 : _c.clave;
+            const userPass = (_c = (_b = queryClave === null || queryClave === void 0 ? void 0 : queryClave.data) === null || _b === void 0 ? void 0 : _b.recordset[0]) === null || _c === void 0 ? void 0 : _c.clave;
             const isCorrect = yield bcrypt_1.default.compare(clave, String(userPass));
             return getUserToken(isCorrect, usuario);
         }

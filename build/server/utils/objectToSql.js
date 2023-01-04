@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.objectInLine = exports.objectToInsertInto = void 0;
+exports.objectInLineWhere = exports.objectInLine = exports.objectToInsertInto = void 0;
 /* Convierte un objecto en campos y valores para una consulta insert into con sus respectivos tipos de datos
 para los valores a agregar.
 
@@ -57,3 +57,24 @@ const objectInLine = (keys, object) => {
     return keyAndValues.slice(0, -1);
 };
 exports.objectInLine = objectInLine;
+const objectInLineWhere = (keys, object, denotation) => {
+    let value = '';
+    let keyAndValues = '';
+    keys.map((key) => {
+        switch (typeof (object[key])) {
+            case 'string':
+                value += "'" + object[key] + "' " + denotation + ' ';
+                break;
+            case 'boolean':
+                value += object[key] == 'true' || object[key] == true ? '1 ' + denotation + ' ' : '0 ' + denotation + ' ';
+                break;
+            default:
+                value += object[key] + ' ' + denotation + ' ';
+                break;
+        }
+        keyAndValues += key + '=' + value;
+        value = '';
+    });
+    return keyAndValues.slice(0, -4);
+};
+exports.objectInLineWhere = objectInLineWhere;

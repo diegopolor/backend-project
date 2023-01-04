@@ -20,12 +20,12 @@ const getUserToken =  async (isCorrect: boolean, usuario: string) => {
 }
 
 export const userAuthentication = async({usuario, clave}: userAuth) =>{
-    const queryClave = await listFilds(table, ['clave'], {usuario} )
+    const queryClave = await listFilds(table, ['clave'], {usuario})
     const errorText = 'Credenciales incorrectas'
     if(queryClave.success){
         const rowsQuery =  queryClave?.data?.rowsAffected[0]
         if(Number(rowsQuery) > 0){
-            const userPass = queryClave.data?.recordset[0]?.clave
+            const userPass = queryClave?.data?.recordset[0]?.clave 
             const isCorrect = await bcrypt.compare(clave, String(userPass))
             return getUserToken(isCorrect, usuario)
         }else return { success: false, token: undefined, message: errorText }
