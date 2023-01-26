@@ -27,7 +27,7 @@ authRoute.post('/create', (req, res) => __awaiter(void 0, void 0, void 0, functi
 authRoute.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const auth = yield (0, users_1.userAuthentication)(req.body);
     if (auth.success) {
-        res.status(200).json({ token: auth === null || auth === void 0 ? void 0 : auth.token });
+        res.status(200).json({ token: auth === null || auth === void 0 ? void 0 : auth.token, rol: String(auth === null || auth === void 0 ? void 0 : auth.rol) });
     }
     else
         res.status(400).json({ error: auth === null || auth === void 0 ? void 0 : auth.message });

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.listNovedad = exports.createNovedad = void 0;
+exports.updateNovedad = exports.listNovedad = exports.createNovedad = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 const sqlServer_1 = require("./sqlServer");
 dotenv_1.default.config();
@@ -45,8 +45,23 @@ const listNovedad = (columns, where) => __awaiter(void 0, void 0, void 0, functi
     }
     else
         return {
-            message,
+            message: 'No se ha podido guardar la información. ERROR: ' + message,
             success
         };
 });
 exports.listNovedad = listNovedad;
+const updateNovedad = (dataUpdate, where) => __awaiter(void 0, void 0, void 0, function* () {
+    const { success, message } = yield (0, sqlServer_1.updateField)(TABLE, dataUpdate, where);
+    if (success) {
+        return {
+            message: 'Datos actualizados exitosamente',
+            success
+        };
+    }
+    else
+        return {
+            message: 'No se han podido acutalizar los datos. ERROR: ' + message,
+            success
+        };
+});
+exports.updateNovedad = updateNovedad;

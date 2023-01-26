@@ -13,7 +13,26 @@ const express_1 = require("express");
 const webSocket_1 = require("../../webSocket");
 const novedades_1 = require("../services/novedades");
 const date_1 = require("../utils/date");
+const authToken_1 = require("../middlewares/authToken");
 const novRoutes = (0, express_1.Router)();
+// Ruta para dar por terminada la gestión de la novedad
+novRoutes.get('/done/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { dateToday, now } = (0, date_1.today)();
+    const where = {
+        id: req.params.id
+    };
+    const dataUpdate = {
+        gestion: 'Si',
+        fecha_gestion: dateToday,
+        hora_gestion: now
+    };
+    const { success, message } = yield (0, novedades_1.updateNovedad)(dataUpdate, where);
+    if (success) {
+        res.status(200).json(message).end();
+    }
+    else
+        res.status(400).json(message).end();
+}));
 //listar novedades filtradas
 novRoutes.post('/filter', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { columns, where } = req.body;
@@ -22,28 +41,29 @@ novRoutes.post('/filter', (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(200).json(data === null || data === void 0 ? void 0 : data.recordset);
     }
     else
-        res.status(400).json({ message: 'No se pudo realizar el filtro: ' + message });
+        res.status(400).json({ message: 'No se pudo realizar el filtro: ' + message }).end();
 }));
 //listar novedades filtradas
 novRoutes.post('/prioridad', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('petición a prioridad');
     const prioridad = req.body.prioridad;
     const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad'];
     const where = {
         prioridad,
-        gestion: "No"
+        gestion: 'No'
     };
     const { success, data, message } = yield (0, novedades_1.listNovedad)(columns, where);
+    console.log(message);
     if (success) {
         res.status(200).json(data === null || data === void 0 ? void 0 : data.recordset);
     }
     else
         res.status(400).json({ message: 'No se pudo realizar el filtro: ' + message });
 }));
-novRoutes.post('/transmitir', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// transmite la información por WebSocket
+novRoutes.post('/transmitir', authToken_1.tokenVerify, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { fecha, hora, unidad, clave, origen, prioridad } = req.body;
-    const date = new Date;
-    const today = date.getFullYear() + '-' + date.getMonth() + 1 + '-' + (date.getDay() + 1);
-    const now = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+    const { dateToday, now } = (0, date_1.today)();
     const dataMessage = {
         fecha: (0, date_1.dateConvert)(fecha),
         hora,
@@ -51,7 +71,7 @@ novRoutes.post('/transmitir', (req, res) => __awaiter(void 0, void 0, void 0, fu
         clave,
         origen,
         prioridad: Number(prioridad),
-        fecha_entrega: today,
+        fecha_entrega: dateToday,
         hora_entrega: now,
         gestion: 'No'
     };

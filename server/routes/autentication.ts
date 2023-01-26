@@ -21,7 +21,7 @@ authRoute.post('/create', async (req, res)=> {
 authRoute.post('/login', async (req, res)=>{
     const auth = await userAuthentication(req.body)
     if(auth.success){
-        res.status(200).json({token: auth?.token})
+        res.status(200).json({token: auth?.token, rol: String(auth?.rol) })
     }else res.status(400).json({error: auth?.message})
 })
 

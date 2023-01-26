@@ -13,7 +13,6 @@ const connectDB = async ()=> {
             connection
         }
     }catch(e){
-        console.log(e)
         return  {
             success: false,  
             message: 'No se ha podido conectar a la base de datos'

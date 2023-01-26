@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 
 import { novedades } from "../../interfaces"
 
-import { saveField, listFilds } from "./sqlServer"
+import { saveField, listFilds, updateField } from "./sqlServer"
  
 dotenv.config()
 
@@ -33,7 +33,20 @@ export const listNovedad = async (columns: string[], where: object ) => {
             success
         }
     }else return{
-        message,
+        message : 'No se ha podido guardar la información. ERROR: ' + message,
+        success
+    }
+}
+
+export const updateNovedad = async (dataUpdate: object, where: object )=> {
+    const { success, message } = await updateField(TABLE, dataUpdate, where)
+    if(success){
+        return {
+            message: 'Datos actualizados exitosamente',
+            success
+        }
+    }else return{
+        message  : 'No se han podido acutalizar los datos. ERROR: ' + message,
         success
     }
 }

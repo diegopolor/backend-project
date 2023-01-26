@@ -3,10 +3,29 @@ import { Router } from "express";
 import { novedades } from "../../interfaces";
 
 import { socketNovedades } from "../../webSocket";
-import { createNovedad, listNovedad } from "../services/novedades";
-import { dateConvert } from "../utils/date";
+import { createNovedad, listNovedad, updateNovedad } from "../services/novedades";
+import { today, dateConvert } from "../utils/date";
+import { tokenVerify } from "../middlewares/authToken";
 
 const novRoutes = Router()
+
+// Ruta para dar por terminada la gestión de la novedad
+novRoutes.get('/done/:id', async(req, res)=> {
+    
+    const { dateToday, now } =  today()
+    const where = {
+        id: req.params.id
+    }
+    const dataUpdate = {
+            gestion : 'Si',
+            fecha_gestion: dateToday, 
+            hora_gestion: now
+    }
+     const { success, message } =  await updateNovedad(dataUpdate, where)
+     if(success){
+        res.status(200).json(message).end()
+     }else res.status(400).json(message).end()
+})
 
 //listar novedades filtradas
 novRoutes.post('/filter', async (req, res)=> {
@@ -14,7 +33,7 @@ novRoutes.post('/filter', async (req, res)=> {
     const { success, data, message }  = await listNovedad(columns, where)
     if(success){
        res.status(200).json(data?.recordset)
-    }else res.status(400).json({message : 'No se pudo realizar el filtro: ' + message})
+    }else res.status(400).json({message : 'No se pudo realizar el filtro: ' + message}).end()
 })
 
 //listar novedades filtradas
@@ -23,7 +42,7 @@ novRoutes.post('/prioridad', async (req, res)=> {
     const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad'] 
     const where = {
         prioridad,
-        gestion: "No"
+        gestion: 'No'
     }
     const { success, data, message }  = await listNovedad(columns, where)
     if(success){
@@ -31,13 +50,11 @@ novRoutes.post('/prioridad', async (req, res)=> {
     }else res.status(400).json({message : 'No se pudo realizar el filtro: ' + message})
 })
 
-novRoutes.post('/transmitir', async(req, res)=> {
+// transmite la información por WebSocket
+novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
+
     const  { fecha, hora, unidad, clave, origen, prioridad } : novedades = req.body
-
-    const date = new Date
-    const today = date.getFullYear() + '-' + date.getMonth()+1 + '-' +  (date.getDay() + 1)
-    const now = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
-
+    const { dateToday, now } = today()
     const dataMessage : novedades = {
         fecha: dateConvert(fecha) , 
         hora,
@@ -45,7 +62,7 @@ novRoutes.post('/transmitir', async(req, res)=> {
         clave,
         origen,
         prioridad : Number(prioridad),
-        fecha_entrega: today,
+        fecha_entrega: dateToday,
         hora_entrega: now,
         gestion: 'No'
     }

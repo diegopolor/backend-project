@@ -8,6 +8,13 @@ const socket_io_1 = __importDefault(require("socket.io"));
 let io;
 const setWebSocket = (server) => {
     io = new socket_io_1.default.Server(server);
+    io.on('connect', (socket) => {
+        const room = socket.handshake.query.nameRoom;
+        socket.join(String(room));
+        socket.on('doneNovedad', (id) => {
+            io.emit('doneNovedad', id);
+        });
+    });
 };
 exports.setWebSocket = setWebSocket;
 const getWebSocket = () => {

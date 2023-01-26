@@ -27,7 +27,6 @@ const connectDB = () => __awaiter(void 0, void 0, void 0, function* () {
         };
     }
     catch (e) {
-        console.log(e);
         return {
             success: false,
             message: 'No se ha podido conectar a la base de datos'

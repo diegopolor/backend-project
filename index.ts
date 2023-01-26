@@ -12,7 +12,7 @@ const corsOptions = {
 
 // Middlewares iniciales
 app.use(cors(corsOptions))
-app.use(Express.json())
+app.use(Express.json({ limit : '1000mb' }))
 app.use(Express.static( 'public'))
 
 //Rutas del servidor

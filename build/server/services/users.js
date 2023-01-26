@@ -17,7 +17,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sqlServer_1 = require("./sqlServer");
 const sqlServer_2 = require("./sqlServer");
-const table = 'UserToken';
+const table = '[CHECKLIST].[dbo].[UserToken]';
 const getUserToken = (isCorrect, usuario) => __awaiter(void 0, void 0, void 0, function* () {
     if (isCorrect) {
         const generedToken = jsonwebtoken_1.default.sign({ foo: 'bar' }, 'shhhhh');
@@ -32,31 +32,33 @@ const getUserToken = (isCorrect, usuario) => __awaiter(void 0, void 0, void 0, f
         return { success: false, token: undefined, message: 'Credenciales incorrectas' };
 });
 const userAuthentication = ({ usuario, clave }) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
-    const queryClave = yield (0, sqlServer_2.listFilds)(table, ['clave'], { usuario });
+    var _a, _b, _c, _d, _e;
+    const queryClave = yield (0, sqlServer_2.listFilds)(table, ['clave', 'rol'], { usuario });
     const errorText = 'Credenciales incorrectas';
     if (queryClave.success) {
         const rowsQuery = (_a = queryClave === null || queryClave === void 0 ? void 0 : queryClave.data) === null || _a === void 0 ? void 0 : _a.rowsAffected[0];
         if (Number(rowsQuery) > 0) {
             const userPass = (_c = (_b = queryClave === null || queryClave === void 0 ? void 0 : queryClave.data) === null || _b === void 0 ? void 0 : _b.recordset[0]) === null || _c === void 0 ? void 0 : _c.clave;
+            const rol = (_e = (_d = queryClave === null || queryClave === void 0 ? void 0 : queryClave.data) === null || _d === void 0 ? void 0 : _d.recordset[0]) === null || _e === void 0 ? void 0 : _e.rol;
             const isCorrect = yield bcrypt_1.default.compare(clave, String(userPass));
-            return getUserToken(isCorrect, usuario);
+            const { success, token, message } = yield getUserToken(isCorrect, usuario);
+            return { success, token, message, rol };
         }
         else
-            return { success: false, token: undefined, message: errorText };
+            return { success: false, rol: undefined, token: undefined, message: errorText };
     }
     else
-        return { success: false, token: undefined, message: queryClave.message };
+        return { success: false, rol: undefined, token: undefined, message: queryClave.message };
 });
 exports.userAuthentication = userAuthentication;
 const adminAuthentication = (userAdmin, claveAdmin) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d, _e, _f, _g, _h;
+    var _f, _g;
     const queryAdmin = `SELECT clave, rol FROM ${table} WHERE usuario = '${userAdmin}';`;
-    const resultAdmin = yield (0, sqlServer_1.querySQL)(queryAdmin);
-    const rowsResult = (_d = resultAdmin === null || resultAdmin === void 0 ? void 0 : resultAdmin.data) === null || _d === void 0 ? void 0 : _d.rowsAffected[0];
+    const { data, message } = yield (0, sqlServer_1.querySQL)(queryAdmin);
+    const rowsResult = data === null || data === void 0 ? void 0 : data.rowsAffected[0];
     if (Number(rowsResult) > 0) {
-        const passAdmin = (_f = (_e = resultAdmin === null || resultAdmin === void 0 ? void 0 : resultAdmin.data) === null || _e === void 0 ? void 0 : _e.recordset[0]) === null || _f === void 0 ? void 0 : _f.clave;
-        const rolAdmin = (_h = (_g = resultAdmin === null || resultAdmin === void 0 ? void 0 : resultAdmin.data) === null || _g === void 0 ? void 0 : _g.recordset[0]) === null || _h === void 0 ? void 0 : _h.rol;
+        const passAdmin = (_f = data === null || data === void 0 ? void 0 : data.recordset[0]) === null || _f === void 0 ? void 0 : _f.clave;
+        const rolAdmin = (_g = data === null || data === void 0 ? void 0 : data.recordset[0]) === null || _g === void 0 ? void 0 : _g.rol;
         const isAdminPass = yield bcrypt_1.default.compare(String(claveAdmin), passAdmin);
         if (isAdminPass && rolAdmin == "Admin") {
             return {
@@ -73,7 +75,7 @@ const adminAuthentication = (userAdmin, claveAdmin) => __awaiter(void 0, void 0,
     else
         return {
             success: false,
-            message: 'No se ha encontrado el usuario.'
+            message: 'No se ha encontrado el usuario. Error: ' + message
         };
 });
 exports.adminAuthentication = adminAuthentication;

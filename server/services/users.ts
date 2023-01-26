@@ -7,29 +7,31 @@ import { updateField, listFilds } from './sqlServer'
 
 import { errorHandler, userCreate, userAuth } from '../../types'
 
-const table = 'UserToken'
+const table = '[CHECKLIST].[dbo].[UserToken]'
 
 const getUserToken =  async (isCorrect: boolean, usuario: string) => {
     if(isCorrect){
         const generedToken =  jwt.sign({ foo: 'bar' }, 'shhhhh');
         const resultUpdate = await updateField(table, {token: generedToken}, {usuario})
         if(resultUpdate.success){
-            return { success: true, token: generedToken, message: resultUpdate.message }
+            return { success: true,  token: generedToken, message: resultUpdate.message }
         } else return { success: false, token: undefined, message: resultUpdate.message }
     } else return { success: false, token: undefined, message: 'Credenciales incorrectas' }
 }
 
 export const userAuthentication = async({usuario, clave}: userAuth) =>{
-    const queryClave = await listFilds(table, ['clave'], {usuario})
+    const queryClave = await listFilds(table, ['clave', 'rol'], {usuario})
     const errorText = 'Credenciales incorrectas'
     if(queryClave.success){
         const rowsQuery =  queryClave?.data?.rowsAffected[0]
         if(Number(rowsQuery) > 0){
             const userPass = queryClave?.data?.recordset[0]?.clave 
+            const rol = queryClave?.data?.recordset[0]?.rol
             const isCorrect = await bcrypt.compare(clave, String(userPass))
-            return getUserToken(isCorrect, usuario)
-        }else return { success: false, token: undefined, message: errorText }
-    }else return { success: false, token: undefined, message: queryClave.message } 
+            const { success, token, message  } = await getUserToken(isCorrect, usuario)
+            return { success, token, message, rol }
+        }else return { success: false, rol :undefined, token: undefined, message: errorText }
+    }else return { success: false, rol :undefined, token: undefined, message: queryClave.message } 
  }
 
 export const adminAuthentication =  async (
@@ -38,12 +40,12 @@ export const adminAuthentication =  async (
     ): Promise<errorHandler> =>{  
 
     const queryAdmin = `SELECT clave, rol FROM ${table} WHERE usuario = '${userAdmin}';`
-    const resultAdmin = await querySQL(queryAdmin)
-    const rowsResult = resultAdmin?.data?.rowsAffected[0] 
+    const {data, message} = await querySQL(queryAdmin)
+    const rowsResult = data?.rowsAffected[0] 
 
     if(Number(rowsResult) > 0){
-        const passAdmin = resultAdmin?.data?.recordset[0]?.clave
-        const rolAdmin = resultAdmin?.data?.recordset[0]?.rol
+        const passAdmin = data?.recordset[0]?.clave
+        const rolAdmin = data?.recordset[0]?.rol
         const isAdminPass = await bcrypt.compare(String(claveAdmin), passAdmin)
 
         if(isAdminPass && rolAdmin == "Admin"){   
@@ -59,7 +61,7 @@ export const adminAuthentication =  async (
     else
         return { 
             success : false, 
-            message: 'No se ha encontrado el usuario.'
+            message: 'No se ha encontrado el usuario. Error: ' + message
         }
 }
 

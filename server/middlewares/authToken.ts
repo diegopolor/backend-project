@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { querySQL } from "../services/sqlServer";
 
-const table = 'UserToken'
+const table = '[CHECKLIST].[dbo].[UserToken]'
 
 export const tokenVerify = async(req: Request, res: Response, next: NextFunction ): Promise<void>=> {
     try{
@@ -16,7 +16,6 @@ export const tokenVerify = async(req: Request, res: Response, next: NextFunction
         const queryAuthToken = `SELECT * FROM ${table} WHERE token = '${token}'` 
         const resutlAuthToken = await querySQL(queryAuthToken)
         const rowsAuthToken = resutlAuthToken?.data?.rowsAffected[0]
-
         if(Number(rowsAuthToken) > 0) next()
         else res.status(401).json({ message: 'Token no valido'})
               

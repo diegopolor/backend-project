@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tokenVerify = void 0;
 const sqlServer_1 = require("../services/sqlServer");
-const table = 'UserToken';
+const table = '[CHECKLIST].[dbo].[UserToken]';
 const tokenVerify = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {

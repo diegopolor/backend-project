@@ -6,6 +6,16 @@ let io: Server
 
 const setWebSocket = (server: any) => {
     io = new socketIO.Server(server)
+
+    io.on('connect', (socket)=> {
+
+        const room = socket.handshake.query.nameRoom
+        socket.join(String(room))
+
+        socket.on('doneNovedad', (id)=> {
+            io.emit('doneNovedad', id)
+        })
+    } )
 }
 
 const getWebSocket = ()=> {
