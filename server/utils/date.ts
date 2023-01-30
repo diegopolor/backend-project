@@ -8,10 +8,10 @@ export const dateConvert = (date: string) =>{
 }
 
 export const today = () =>{ 
-    const date = new Date
-    const dateToday = date.getFullYear() + '-' + date.getMonth()+1 + '-' +  (date.getDay() + 1)
-    const now = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
-
+    const objectDate = new Date().toLocaleString('en-GB')
+    const dateToday = objectDate.split(',')[0]
+    const now = objectDate.split(',')[1].replace(' ', '')
+    
     return {
         dateToday,
         now

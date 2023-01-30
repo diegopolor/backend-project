@@ -6,6 +6,7 @@ import { socketNovedades } from "../../webSocket";
 import { createNovedad, listNovedad, updateNovedad } from "../services/novedades";
 import { today, dateConvert } from "../utils/date";
 import { tokenVerify } from "../middlewares/authToken";
+import logApi from "../logs/api";
 
 const novRoutes = Router()
 
@@ -52,7 +53,7 @@ novRoutes.post('/prioridad', async (req, res)=> {
 
 // transmite la información por WebSocket
 novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
-
+    const { baseUrl } = req
     const  { fecha, hora, unidad, clave, origen, prioridad } : novedades = req.body
     const { dateToday, now } = today()
     const dataMessage : novedades = {
@@ -62,7 +63,7 @@ novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
         clave,
         origen,
         prioridad : Number(prioridad),
-        fecha_entrega: dateToday,
+        fecha_entrega: dateConvert(dateToday),
         hora_entrega: now,
         gestion: 'No'
     }
@@ -71,7 +72,10 @@ novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
     if(success){
         socketNovedades(dataMessage)
         res.status(200).json({message: 'Se ha guardado y transmitido la información con exito.'})
-    }else res.status(400).json({message: 'No se ha podido transmitir la novedad. Error: ' + message})
+    }else{ 
+        logApi(baseUrl, message, dataMessage)
+        res.status(400).json({message: 'No se ha podido transmitir la novedad. Error: ' + message})
+    }
 })
 
 export default novRoutes
