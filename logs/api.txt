@@ -1,4 +1,1 @@
-[30/01/2023 - 12:58:47] Path: '/api/v1/novedades' Error: No se pudo guardar la novedad: Conversion failed when converting date and/or time from character string. 
-dataObject: {"fecha":"2022-11-24","hora":"09:20:23","unidad":102,"clave":"C","origen":"TFT","prioridad":2,"fecha_entrega":"30/01/2023","hora_entrega":"12:58:47","gestion":"No"} 
-[30/01/2023 - 13:58:02] Path: '/api/v1/novedades' Error: No se pudo guardar la novedad: Invalid column name 'NaN'. 
-dataObject: {"fecha":"2022-11-24","hora":"09:20:23","unidad":102,"clave":"C","origen":"TFT","prioridad":null,"fecha_entrega":"2023-01-30","hora_entrega":"13:58:02","gestion":"No"} 
+
