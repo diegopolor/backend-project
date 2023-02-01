@@ -54,6 +54,7 @@ novRoutes.post('/prioridad', async (req, res)=> {
 // transmite la información por WebSocket
 novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
     const { baseUrl } = req
+    console.log('aaaaaaaaaaaa')
     const  { fecha, hora, unidad, clave, origen, prioridad } : novedades = req.body
     const { dateToday, now } = today()
     const dataMessage : novedades = {
@@ -73,6 +74,7 @@ novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
         socketNovedades(dataMessage)
         res.status(200).json({message: 'Se ha guardado y transmitido la información con exito.'})
     }else{ 
+        console.log(message)
         logApi(baseUrl, message, dataMessage)
         res.status(400).json({message: 'No se ha podido transmitir la novedad. Error: ' + message})
     }
