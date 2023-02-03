@@ -48,36 +48,40 @@ novRoutes.post('/prioridad', async (req, res)=> {
     const { success, data, message }  = await listNovedad(columns, where)
     if(success){
        res.status(200).json(data?.recordset)
-    }else res.status(400).json({message : 'No se pudo realizar el filtro: ' + message})
+    }else res.status(400).json({ message })
 })
 
 // transmite la información por WebSocket
 novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
     const { baseUrl } = req
-    console.log('aaaaaaaaaaaa')
     const  { fecha, hora, unidad, clave, origen, prioridad } : novedades = req.body
     const { dateToday, now } = today()
-    const dataMessage : novedades = {
-        fecha: dateConvert(fecha) , 
-        hora,
-        unidad : Number(unidad),
-        clave,
-        origen,
-        prioridad : Number(prioridad),
-        fecha_entrega: dateConvert(dateToday),
-        hora_entrega: now,
-        gestion: 'No'
+    const isBodyValid = Object.keys(req.body).length !== 0;
+    
+    if(isBodyValid){
+        const dataMessage : novedades = {
+            fecha: dateConvert(fecha) , 
+            hora,
+            unidad : Number(unidad),
+            clave,
+            origen,
+            prioridad : Number(prioridad),
+            fecha_entrega: dateConvert(dateToday),
+            hora_entrega: now,
+            gestion: 'No'
+        }
+    
+        const { success, message } = await createNovedad(dataMessage)
+        if(success){
+            socketNovedades(dataMessage)
+            res.status(200).json({message: 'Se ha guardado y transmitido la información con exito.'})
+        }else{ 
+            logApi(baseUrl, message, dataMessage)
+            res.status(400).json({message: 'No se ha podido transmitir la novedad. Error: ' + message})
+        }
     }
-
-    const { success, message } = await createNovedad(dataMessage)
-    if(success){
-        socketNovedades(dataMessage)
-        res.status(200).json({message: 'Se ha guardado y transmitido la información con exito.'})
-    }else{ 
-        console.log(message)
-        logApi(baseUrl, message, dataMessage)
-        res.status(400).json({message: 'No se ha podido transmitir la novedad. Error: ' + message})
-    }
+    else res.status(400).json({message: 'No se ha encontrado datos en la peticion '})
+   
 })
 
 export default novRoutes

@@ -8,12 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const webSocket_1 = require("../../webSocket");
 const novedades_1 = require("../services/novedades");
 const date_1 = require("../utils/date");
 const authToken_1 = require("../middlewares/authToken");
+const api_1 = __importDefault(require("../logs/api"));
 const novRoutes = (0, express_1.Router)();
 // Ruta para dar por terminada la gestión de la novedad
 novRoutes.get('/done/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -45,7 +49,6 @@ novRoutes.post('/filter', (req, res) => __awaiter(void 0, void 0, void 0, functi
 }));
 //listar novedades filtradas
 novRoutes.post('/prioridad', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('petición a prioridad');
     const prioridad = req.body.prioridad;
     const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad'];
     const where = {
@@ -53,34 +56,41 @@ novRoutes.post('/prioridad', (req, res) => __awaiter(void 0, void 0, void 0, fun
         gestion: 'No'
     };
     const { success, data, message } = yield (0, novedades_1.listNovedad)(columns, where);
-    console.log(message);
     if (success) {
         res.status(200).json(data === null || data === void 0 ? void 0 : data.recordset);
     }
     else
-        res.status(400).json({ message: 'No se pudo realizar el filtro: ' + message });
+        res.status(400).json({ message });
 }));
 // transmite la información por WebSocket
 novRoutes.post('/transmitir', authToken_1.tokenVerify, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { baseUrl } = req;
     const { fecha, hora, unidad, clave, origen, prioridad } = req.body;
     const { dateToday, now } = (0, date_1.today)();
-    const dataMessage = {
-        fecha: (0, date_1.dateConvert)(fecha),
-        hora,
-        unidad: Number(unidad),
-        clave,
-        origen,
-        prioridad: Number(prioridad),
-        fecha_entrega: dateToday,
-        hora_entrega: now,
-        gestion: 'No'
-    };
-    const { success, message } = yield (0, novedades_1.createNovedad)(dataMessage);
-    if (success) {
-        (0, webSocket_1.socketNovedades)(dataMessage);
-        res.status(200).json({ message: 'Se ha guardado y transmitido la información con exito.' });
+    const isBodyValid = Object.keys(req.body).length !== 0;
+    if (isBodyValid) {
+        const dataMessage = {
+            fecha: (0, date_1.dateConvert)(fecha),
+            hora,
+            unidad: Number(unidad),
+            clave,
+            origen,
+            prioridad: Number(prioridad),
+            fecha_entrega: (0, date_1.dateConvert)(dateToday),
+            hora_entrega: now,
+            gestion: 'No'
+        };
+        const { success, message } = yield (0, novedades_1.createNovedad)(dataMessage);
+        if (success) {
+            (0, webSocket_1.socketNovedades)(dataMessage);
+            res.status(200).json({ message: 'Se ha guardado y transmitido la información con exito.' });
+        }
+        else {
+            (0, api_1.default)(baseUrl, message, dataMessage);
+            res.status(400).json({ message: 'No se ha podido transmitir la novedad. Error: ' + message });
+        }
     }
     else
-        res.status(400).json({ message: 'No se ha podido transmitir la novedad. Error: ' + message });
+        res.status(400).json({ message: 'No se ha encontrado datos en la peticion ' });
 }));
 exports.default = novRoutes;

@@ -14,7 +14,7 @@ const corsOptions = {
 };
 // Middlewares iniciales
 app.use((0, cors_1.default)(corsOptions));
-app.use(express_1.default.json());
+app.use(express_1.default.json({ limit: '1000mb' }));
 app.use(express_1.default.static('public'));
 //Rutas del servidor
 (0, routes_1.apiRoutes)(app);

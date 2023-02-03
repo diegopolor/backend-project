@@ -33,7 +33,7 @@ export const listNovedad = async (columns: string[], where: object ) => {
             success
         }
     }else return{
-        message : 'No se ha podido guardar la información. ERROR: ' + message,
+        message : 'No se ha pidido listar la información. ERROR: ' + message,
         success
     }
 }

@@ -45,7 +45,7 @@ const listNovedad = (columns, where) => __awaiter(void 0, void 0, void 0, functi
     }
     else
         return {
-            message: 'No se ha podido guardar la información. ERROR: ' + message,
+            message: 'No se ha pidido listar la información. ERROR: ' + message,
             success
         };
 });
