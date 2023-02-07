@@ -132,6 +132,30 @@ export const listFilds = async(table: string, columnsArray: any[], objectWhere: 
     }
 }
 
+export const listFildsOrderBy = async(table: string, columnsArray: any[], objectWhere: object, orderby: string) => {
+    let columns = ' '
+    // concatena las columnas de la consulta y les coloca un ',' al final
+    columnsArray?.map((item)=> columns += item + ',')
+    // toma las keys del objeto del where de la consulta 
+    if(Object.keys(objectWhere ?? {}).length >= 1 && columnsArray != undefined){
+        const keysObjectWhere = Object.keys(objectWhere ?? {})
+        //convierte el objeto en formato value sql ej. key = 'value'
+        const whereValues = objectInLineWhere(keysObjectWhere, objectWhere, 'AND')
+        
+        // concatena la consulta quitandole la ultima ',' al string de columnas
+        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues} ORDER BY ${orderby};`
+        const queryResult = await querySQL(query)
+    
+        if(queryResult.success){
+            return { success: true, data: queryResult.data, message: queryResult.message }
+        }else return { success: false, data: undefined, message: queryResult.message }
+    }else return { 
+        success: false, 
+        message: 'Se debe ingresar columnas a filtrar y los valores de referencia para el filtro.' 
+    }
+}
+
+
 export const listAllFilds = async (table: string)=> {
     const query = `SELECT * FROM ${table};`
     const queryResult = await querySQL(query)

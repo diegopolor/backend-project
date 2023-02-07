@@ -1,5 +1,4 @@
 export const dateConvert = (date: string) =>{ 
-    console.log(date )
     if(date?.search('/') != -1) {
         const format = {
             year : date.split('/')[2],

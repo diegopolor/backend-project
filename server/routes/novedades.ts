@@ -3,7 +3,7 @@ import { Router } from "express";
 import { novedades } from "../../interfaces";
 
 import { socketNovedades } from "../../webSocket";
-import { createNovedad, listNovedad, updateNovedad } from "../services/novedades";
+import { createNovedad, listNovedad, listNovedadOrderBy, updateNovedad } from "../services/novedades";
 import { today, dateConvert } from "../utils/date";
 import { tokenVerify } from "../middlewares/authToken";
 import logApi from "../logs/api";
@@ -45,7 +45,7 @@ novRoutes.post('/prioridad', async (req, res)=> {
         prioridad,
         gestion: 'No'
     }
-    const { success, data, message }  = await listNovedad(columns, where)
+    const { success, data, message }  = await listNovedadOrderBy(columns, where, 'hora')
     if(success){
        res.status(200).json(data?.recordset)
     }else res.status(400).json({ message })
@@ -54,7 +54,7 @@ novRoutes.post('/prioridad', async (req, res)=> {
 // transmite la información por WebSocket
 novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
     const { baseUrl } = req
-    const  { fecha, hora, unidad, clave, origen, prioridad } : novedades = req.body
+    const  { fecha, hora, unidad, clave, origen, prioridad, descripcion } : novedades = req.body
     const { dateToday, now } = today()
     const isBodyValid = Object.keys(req.body).length !== 0;
     
@@ -68,9 +68,10 @@ novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
             prioridad : Number(prioridad),
             fecha_entrega: dateConvert(dateToday),
             hora_entrega: now,
-            gestion: 'No'
+            gestion: 'No',
+            descripcion
         }
-    
+   
         const { success, message } = await createNovedad(dataMessage)
         if(success){
             socketNovedades(dataMessage)
