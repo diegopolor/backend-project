@@ -29,7 +29,7 @@ export const querySQL = async (sql: string)=> {
                 return { success: true, message: 'Query realizada', data: Result }      
             }
             catch(err: any){
-                return { success: false, message: err}
+                return { success: false, message: err?.originalError?.info?.message}
             }
         } 
         else return { success: false, message: db.message }
@@ -136,7 +136,7 @@ export const listFildsOrderBy = async(table: string, columnsArray: any[], object
         let orderByString= ''
 
         orderBy.map((item, index)=> {
-            orderByString += `${item} ${order[index]}, `
+            orderByString += `${item} ${order[index]},`
         })
 
     // concatena las columnas de la consulta y les coloca un ',' al final

@@ -11,7 +11,7 @@ import logApi from "../logs/api";
 const novRoutes = Router()
 
 // Ruta para dar por terminada la gestión de la novedad
-novRoutes.get('/done/:id', async(req, res)=> {
+novRoutes.post('/done/:id', async(req, res)=> {
     
     const { dateToday, now } =  today()
     const { observacion } = req.body
