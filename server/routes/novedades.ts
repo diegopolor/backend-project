@@ -14,13 +14,15 @@ const novRoutes = Router()
 novRoutes.get('/done/:id', async(req, res)=> {
     
     const { dateToday, now } =  today()
+    const { observacion } = req.body
     const where = {
         id: req.params.id
     }
     const dataUpdate = {
             gestion : 'Si',
             fecha_gestion: dateToday, 
-            hora_gestion: now
+            hora_gestion: now,
+            observacion
     }
      const { success, message } =  await updateNovedad(dataUpdate, where)
      if(success){
@@ -40,12 +42,12 @@ novRoutes.post('/filter', async (req, res)=> {
 //listar novedades filtradas
 novRoutes.post('/prioridad', async (req, res)=> {
     const prioridad : 1 | 2 = req.body.prioridad
-    const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad'] 
+    const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad', 'descripcion'] 
     const where = {
         prioridad,
         gestion: 'No'
     }
-    const { success, data, message }  = await listNovedadOrderBy(columns, where, 'hora')
+    const { success, data, message }  = await listNovedadOrderBy(columns, where, ['fecha', 'hora'], ['DESC', 'DESC'])
     if(success){
        res.status(200).json(data?.recordset)
     }else res.status(400).json({ message })

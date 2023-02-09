@@ -26,10 +26,10 @@ export const querySQL = async (sql: string)=> {
             try{
                 const Result = await db.connection?.query(sql)
                 db.connection?.close()
-                return { success: true, message: 'Query realizada', data: Result }
+                return { success: true, message: 'Query realizada', data: Result }      
             }
             catch(err: any){
-                return { success: false, message: err?.originalError?.info?.message}
+                return { success: false, message: err}
             }
         } 
         else return { success: false, message: db.message }
@@ -81,7 +81,6 @@ export const saveField = async(table: string, object: any) => {
     } 
 }    
 
-
 export const saveManyFields = async (table: string, object : any[])=> { 
     for(let itemObject of object ){
         const savedData = await saveField(table, itemObject)
@@ -132,8 +131,14 @@ export const listFilds = async(table: string, columnsArray: any[], objectWhere: 
     }
 }
 
-export const listFildsOrderBy = async(table: string, columnsArray: any[], objectWhere: object, orderby: string) => {
+export const listFildsOrderBy = async(table: string, columnsArray: any[], objectWhere: object, orderBy: string[], order: string[]) => {
     let columns = ' '
+        let orderByString= ''
+
+        orderBy.map((item, index)=> {
+            orderByString += `${item} ${order[index]}, `
+        })
+
     // concatena las columnas de la consulta y les coloca un ',' al final
     columnsArray?.map((item)=> columns += item + ',')
     // toma las keys del objeto del where de la consulta 
@@ -143,7 +148,7 @@ export const listFildsOrderBy = async(table: string, columnsArray: any[], object
         const whereValues = objectInLineWhere(keysObjectWhere, objectWhere, 'AND')
         
         // concatena la consulta quitandole la ultima ',' al string de columnas
-        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues} ORDER BY ${orderby};`
+        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues} ORDER BY ${orderByString.substring(0, orderByString.length -1 )};`
         const queryResult = await querySQL(query)
     
         if(queryResult.success){

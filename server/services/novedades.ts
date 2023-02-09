@@ -33,13 +33,13 @@ export const listNovedad = async (columns: string[], where: object ) => {
             success
         }
     }else return{
-        message : 'No se ha pidido listar la información. ERROR: ' + message,
+        message : 'No se ha podido listar la información. ERROR: ' + message,
         success
     }
 }
 
-export const listNovedadOrderBy = async (columns: string[], where: object, orderby: string ) => {
-    const { data, success, message } = await listFildsOrderBy(TABLE, columns, where, orderby)
+export const listNovedadOrderBy = async (columns: string[], where: object, orderby: string[], order: string[] ) => {
+    const { data, success, message } = await listFildsOrderBy(TABLE, columns, where, orderby, order)
     if(success){
         return {
             data,
@@ -47,7 +47,7 @@ export const listNovedadOrderBy = async (columns: string[], where: object, order
             success
         }
     }else return{
-        message : 'No se ha pidido listar la información. ERROR: ' + message,
+        message : 'No se ha podido listar la información. ERROR: ' + message,
         success
     }
 }
