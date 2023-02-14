@@ -20,7 +20,7 @@ novRoutes.post('/done/:id', async(req, res)=> {
     }
     const dataUpdate = {
             gestion : 'Si',
-            fecha_gestion: dateToday, 
+            fecha_gestion: dateConvert(dateToday), 
             hora_gestion: now,
             observacion
     }
@@ -41,11 +41,12 @@ novRoutes.post('/filter', async (req, res)=> {
 
 //listar novedades filtradas
 novRoutes.post('/prioridad', async (req, res)=> {
-    const prioridad : 1 | 2 = req.body.prioridad
+    const { prioridad, destinatario } = req.body
     const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad', 'descripcion'] 
     const where = {
         prioridad,
-        gestion: 'No'
+        gestion: 'No',
+        destinatario
     }
     const { success, data, message }  = await listNovedadOrderBy(columns, where, ['fecha', 'hora'], ['DESC', 'DESC'])
     if(success){
@@ -56,7 +57,7 @@ novRoutes.post('/prioridad', async (req, res)=> {
 // transmite la información por WebSocket
 novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
     const { baseUrl } = req
-    const  { fecha, hora, unidad, clave, origen, prioridad, descripcion } : novedades = req.body
+    const  { fecha, hora, unidad, clave, origen, prioridad, descripcion, destinatario } : novedades = req.body
     const { dateToday, now } = today()
     const isBodyValid = Object.keys(req.body).length !== 0;
     
@@ -71,11 +72,13 @@ novRoutes.post('/transmitir', tokenVerify, async(req, res)=> {
             fecha_entrega: dateConvert(dateToday),
             hora_entrega: now,
             gestion: 'No',
-            descripcion
+            descripcion,
+            destinatario
         }
    
         const { success, message } = await createNovedad(dataMessage)
         if(success){
+            console.log(dataMessage.destinatario)
             socketNovedades(dataMessage)
             res.status(200).json({message: 'Se ha guardado y transmitido la información con exito.'})
         }else{ 

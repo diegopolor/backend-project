@@ -8,8 +8,8 @@ const setWebSocket = (server: any) => {
     io = new socketIO.Server(server)
 
     io.on('connect', (socket)=> {
-
         const room = socket.handshake.query.nameRoom
+        console.log('Se ha conectado del grupo: '+ room)
         socket.join(String(room))
 
         socket.on('doneNovedad', (id)=> {
@@ -28,16 +28,18 @@ const socketNovedades = ({
     unidad, 
     clave, 
     origen, 
-    prioridad  
+    prioridad,
+    destinatario
 } : novedades)=>{
-   const socketIO = getWebSocket()
-    socketIO.emit('novedades', {
+    const socketIO = getWebSocket()
+    console.log('destinatario')
+    socketIO.to(destinatario).emit('novedades', {
         fecha,
         hora,
         unidad,
         clave,
         origen,
-        prioridad
+        prioridad,
     })
 }
 

@@ -10,5 +10,6 @@ export interface novedades {
     hora_entrega?: string
     gestion?: string,
     fecha_gestion?: string,
-    hora_gestion?: string
+    hora_gestion?: string,
+    destinatario: string
 }
