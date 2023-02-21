@@ -33,7 +33,7 @@ const socketNovedades = ({
 } : novedades)=>{
     const socketIO = getWebSocket()
     console.log('destinatario')
-    socketIO.to(destinatario).emit('novedades', {
+    socketIO.to(destinatario).to('admin').emit('novedades', {
         fecha,
         hora,
         unidad,

@@ -13,3 +13,9 @@ export interface novedades {
     hora_gestion?: string,
     destinatario: string
 }
+
+export interface wherePrioridad {
+    prioridad: number,
+    gestion: string,
+    destinatario?: string
+}

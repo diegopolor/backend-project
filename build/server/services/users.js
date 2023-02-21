@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUser = exports.createUser = exports.adminAuthentication = exports.userAuthentication = void 0;
+exports.userRol = exports.delteUser = exports.listUsers = exports.updateUser = exports.createUser = exports.userAuthentication = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const sqlServer_1 = require("./sqlServer");
@@ -51,66 +51,73 @@ const userAuthentication = ({ usuario, clave }) => __awaiter(void 0, void 0, voi
         return { success: false, rol: undefined, token: undefined, message: queryClave.message };
 });
 exports.userAuthentication = userAuthentication;
-const adminAuthentication = (userAdmin, claveAdmin) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f, _g;
-    const queryAdmin = `SELECT clave, rol FROM ${table} WHERE usuario = '${userAdmin}';`;
-    const { data, message } = yield (0, sqlServer_1.querySQL)(queryAdmin);
-    const rowsResult = data === null || data === void 0 ? void 0 : data.rowsAffected[0];
-    if (Number(rowsResult) > 0) {
-        const passAdmin = (_f = data === null || data === void 0 ? void 0 : data.recordset[0]) === null || _f === void 0 ? void 0 : _f.clave;
-        const rolAdmin = (_g = data === null || data === void 0 ? void 0 : data.recordset[0]) === null || _g === void 0 ? void 0 : _g.rol;
-        const isAdminPass = yield bcrypt_1.default.compare(String(claveAdmin), passAdmin);
-        if (isAdminPass && rolAdmin == "Admin") {
-            return {
-                success: true,
-                message: 'Usuario admnistrador'
-            };
-        }
-        else
-            return {
-                success: false,
-                message: 'Contraseña incorrecta o usuario sin rol administrador.'
-            };
+const createUser = ({ usuario, clave, rol }) => __awaiter(void 0, void 0, void 0, function* () {
+    const userHashPass = yield bcrypt_1.default.hash(clave, 10);
+    const data = {
+        usuario,
+        clave: userHashPass,
+        rol
+    };
+    const dataSaved = yield (0, sqlServer_1.saveField)(table, data);
+    if (dataSaved.success) {
+        return {
+            success: dataSaved.success,
+            message: 'Usuario creado satisfactoriamente'
+        };
     }
     else
         return {
-            success: false,
-            message: 'No se ha encontrado el usuario. Error: ' + message
+            success: dataSaved.success,
+            message: 'No se ha podido guardar la información. Error: ' + dataSaved.message
         };
-});
-exports.adminAuthentication = adminAuthentication;
-const createUser = (userAdmin, claveAdmin, { usuario, clave, rol }) => __awaiter(void 0, void 0, void 0, function* () {
-    const admin = yield (0, exports.adminAuthentication)(userAdmin, claveAdmin);
-    if (admin.success) {
-        const userHashPass = yield bcrypt_1.default.hash(clave, 10);
-        const data = {
-            usuario,
-            clave: userHashPass,
-            rol
-        };
-        const dataSaved = yield (0, sqlServer_1.saveField)(table, data);
-        if (dataSaved.success) {
-            return {
-                success: dataSaved.success,
-                message: 'Usuario creado satisfactoriamente'
-            };
-        }
-        else
-            return {
-                success: dataSaved.success,
-                message: 'No se ha podido guardar la información. Error: ' + dataSaved.message
-            };
-    }
-    else
-        return { message: admin.message };
 });
 exports.createUser = createUser;
-const updateUser = (objectValues, objectWhere) => __awaiter(void 0, void 0, void 0, function* () {
-    const updatedData = yield (0, sqlServer_2.updateField)(table, objectValues, objectWhere);
+const updateUser = (objectValues, objectWhere, password) => __awaiter(void 0, void 0, void 0, function* () {
+    let updateData = objectValues;
+    console.log(updateData);
+    if (password != undefined) {
+        const userHashPass = yield bcrypt_1.default.hash(password, 10);
+        updateData = Object.assign(Object.assign({}, updateData), { clave: userHashPass });
+    }
+    const updatedData = yield (0, sqlServer_2.updateField)(table, updateData, objectWhere);
     if (updatedData.success) {
         return { success: true, message: 'Usuario actualizado con exito' };
     }
     else
-        return { success: false, message: 'Error al actualizar el usuario' };
+        return { success: false, message: 'Error al actualizar el usuario Error: ' + updatedData.message };
 });
 exports.updateUser = updateUser;
+const listUsers = () => __awaiter(void 0, void 0, void 0, function* () {
+    const { success, data, message } = yield (0, sqlServer_2.listAllFilds)(table);
+    if (success) {
+        return { success, data, message };
+    }
+    else
+        return {
+            data: null,
+            success,
+            message: 'No se ha podido listar los usuarios. Error:' + message
+        };
+});
+exports.listUsers = listUsers;
+const delteUser = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const { success, message } = yield (0, sqlServer_2.deleteField)(table, { id });
+    console.log(message);
+    if (success) {
+        return { success, message: 'Usuario eliminado satisfactoriamente' };
+    }
+    return { success, message };
+});
+exports.delteUser = delteUser;
+const userRol = (userAdmin) => __awaiter(void 0, void 0, void 0, function* () {
+    const columns = ['rol'];
+    const where = {
+        usuario: userAdmin
+    };
+    const { success, data, message } = yield (0, sqlServer_2.listFilds)(table, columns, where);
+    if (success)
+        return { success, data };
+    else
+        return { success, message };
+});
+exports.userRol = userRol;

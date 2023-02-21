@@ -105,7 +105,7 @@ export const updateField = async(table: string, objectValues: any, objectWhere: 
     const executedQuery = await querySQL(query) 
     if(executedQuery.success){
         return {success: true, message: 'Datos actualizados con exito' }
-    } return {success: false, message: 'No se ha podido actualizar la información' }
+    } return {success: false, message: executedQuery.message }
 } 
 
 export const listFilds = async(table: string, columnsArray: any[], objectWhere: object) => {
@@ -165,6 +165,17 @@ export const listAllFilds = async (table: string)=> {
     const query = `SELECT * FROM ${table};`
     const queryResult = await querySQL(query)
     if(queryResult.success){
-        return { success: true, data: queryResult.data, message: queryResult.message }
+        return { success: true, data: queryResult.data?.recordset, message: queryResult.message }
     }else return { success: false, data: {}, message: queryResult.message }
+}
+
+export const deleteField =async (table:string, where: object) => {
+    const keys = Object.keys(where)    
+    const whereQuery = objectInLine(keys, where)
+    const query = `DELETE FROM ${table} WHERE ${whereQuery};`
+    const { success, message } = await querySQL(query)
+    if(success){
+        return { success, message: 'Infromación eliminada con exito' }
+    }else return { success, message }
+
 }

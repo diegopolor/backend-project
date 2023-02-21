@@ -10,6 +10,7 @@ const setWebSocket = (server) => {
     io = new socket_io_1.default.Server(server);
     io.on('connect', (socket) => {
         const room = socket.handshake.query.nameRoom;
+        console.log('Se ha conectado del grupo: ' + room);
         socket.join(String(room));
         socket.on('doneNovedad', (id) => {
             io.emit('doneNovedad', id);
@@ -20,15 +21,16 @@ exports.setWebSocket = setWebSocket;
 const getWebSocket = () => {
     return io;
 };
-const socketNovedades = ({ fecha, hora, unidad, clave, origen, prioridad }) => {
+const socketNovedades = ({ fecha, hora, unidad, clave, origen, prioridad, destinatario }) => {
     const socketIO = getWebSocket();
-    socketIO.emit('novedades', {
+    console.log('destinatario');
+    socketIO.to(destinatario).to('admin').emit('novedades', {
         fecha,
         hora,
         unidad,
         clave,
         origen,
-        prioridad
+        prioridad,
     });
 };
 exports.socketNovedades = socketNovedades;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.listAllFilds = exports.listFilds = exports.updateField = exports.saveManyFields = exports.saveField = exports.querySQL = void 0;
+exports.deleteField = exports.listAllFilds = exports.listFildsOrderBy = exports.listFilds = exports.updateField = exports.saveManyFields = exports.saveField = exports.querySQL = void 0;
 const mssql_1 = __importDefault(require("mssql"));
 const database_1 = __importDefault(require("../config/database"));
 const objectToSql_1 = require("../utils/objectToSql");
@@ -121,7 +121,7 @@ const updateField = (table, objectValues, objectWhere) => __awaiter(void 0, void
     if (executedQuery.success) {
         return { success: true, message: 'Datos actualizados con exito' };
     }
-    return { success: false, message: 'No se ha podido actualizar la información' };
+    return { success: false, message: executedQuery.message };
 });
 exports.updateField = updateField;
 const listFilds = (table, columnsArray, objectWhere) => __awaiter(void 0, void 0, void 0, function* () {
@@ -149,13 +149,55 @@ const listFilds = (table, columnsArray, objectWhere) => __awaiter(void 0, void 0
         };
 });
 exports.listFilds = listFilds;
+const listFildsOrderBy = (table, columnsArray, objectWhere, orderBy, order) => __awaiter(void 0, void 0, void 0, function* () {
+    let columns = ' ';
+    let orderByString = '';
+    orderBy.map((item, index) => {
+        orderByString += `${item} ${order[index]},`;
+    });
+    // concatena las columnas de la consulta y les coloca un ',' al final
+    columnsArray === null || columnsArray === void 0 ? void 0 : columnsArray.map((item) => columns += item + ',');
+    // toma las keys del objeto del where de la consulta 
+    if (Object.keys(objectWhere !== null && objectWhere !== void 0 ? objectWhere : {}).length >= 1 && columnsArray != undefined) {
+        const keysObjectWhere = Object.keys(objectWhere !== null && objectWhere !== void 0 ? objectWhere : {});
+        //convierte el objeto en formato value sql ej. key = 'value'
+        const whereValues = (0, objectToSql_1.objectInLineWhere)(keysObjectWhere, objectWhere, 'AND');
+        // concatena la consulta quitandole la ultima ',' al string de columnas
+        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues} ORDER BY ${orderByString.substring(0, orderByString.length - 1)};`;
+        const queryResult = yield (0, exports.querySQL)(query);
+        if (queryResult.success) {
+            return { success: true, data: queryResult.data, message: queryResult.message };
+        }
+        else
+            return { success: false, data: undefined, message: queryResult.message };
+    }
+    else
+        return {
+            success: false,
+            message: 'Se debe ingresar columnas a filtrar y los valores de referencia para el filtro.'
+        };
+});
+exports.listFildsOrderBy = listFildsOrderBy;
 const listAllFilds = (table) => __awaiter(void 0, void 0, void 0, function* () {
+    var _f;
     const query = `SELECT * FROM ${table};`;
     const queryResult = yield (0, exports.querySQL)(query);
     if (queryResult.success) {
-        return { success: true, data: queryResult.data, message: queryResult.message };
+        return { success: true, data: (_f = queryResult.data) === null || _f === void 0 ? void 0 : _f.recordset, message: queryResult.message };
     }
     else
         return { success: false, data: {}, message: queryResult.message };
 });
 exports.listAllFilds = listAllFilds;
+const deleteField = (table, where) => __awaiter(void 0, void 0, void 0, function* () {
+    const keys = Object.keys(where);
+    const whereQuery = (0, objectToSql_1.objectInLine)(keys, where);
+    const query = `DELETE FROM ${table} WHERE ${whereQuery};`;
+    const { success, message } = yield (0, exports.querySQL)(query);
+    if (success) {
+        return { success, message: 'Infromación eliminada con exito' };
+    }
+    else
+        return { success, message };
+});
+exports.deleteField = deleteField;

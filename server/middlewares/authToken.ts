@@ -7,6 +7,8 @@ export const tokenVerify = async(req: Request, res: Response, next: NextFunction
     try{
         const authHeader = req.header('Authorization')
         if (authHeader === undefined) {
+          console.log('Error')
+          console.log(authHeader)
           throw new Error('No se encontró la api key en la petición')
         } 
         const token = authHeader.split(' ')[1]

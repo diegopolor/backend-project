@@ -84,4 +84,8 @@ export interface errorHandler {
     message: string
 }
 
-
+export interface wherePrioridad {
+    prioridad: number,
+    gestion: string,
+    destinatario?: string
+}

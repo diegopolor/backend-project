@@ -1,11 +1,11 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-import { querySQL, saveField } from './sqlServer'
-import { updateField, listFilds } from './sqlServer'
+import {  saveField } from './sqlServer'
+import { updateField, listFilds, listAllFilds, deleteField } from './sqlServer'
 
 
-import { errorHandler, userCreate, userAuth } from '../../types'
+import { userCreate, userAuth } from '../../types'
 
 const table = '[CHECKLIST].[dbo].[UserToken]'
 
@@ -32,73 +32,74 @@ export const userAuthentication = async({usuario, clave}: userAuth) =>{
             return { success, token, message, rol }
         }else return { success: false, rol :undefined, token: undefined, message: errorText }
     }else return { success: false, rol :undefined, token: undefined, message: queryClave.message } 
- }
-
-export const adminAuthentication =  async (
-    userAdmin: string | undefined, 
-    claveAdmin: string | undefined
-    ): Promise<errorHandler> =>{  
-
-    const queryAdmin = `SELECT clave, rol FROM ${table} WHERE usuario = '${userAdmin}';`
-    const {data, message} = await querySQL(queryAdmin)
-    const rowsResult = data?.rowsAffected[0] 
-
-    if(Number(rowsResult) > 0){
-        const passAdmin = data?.recordset[0]?.clave
-        const rolAdmin = data?.recordset[0]?.rol
-        const isAdminPass = await bcrypt.compare(String(claveAdmin), passAdmin)
-
-        if(isAdminPass && rolAdmin == "Admin"){   
-            return { 
-                success: true, 
-                message: 'Usuario admnistrador' 
-            }
-        } else return { 
-            success : false, 
-            message: 'Contraseña incorrecta o usuario sin rol administrador.'
-        }
-    }
-    else
-        return { 
-            success : false, 
-            message: 'No se ha encontrado el usuario. Error: ' + message
-        }
 }
 
 export const createUser = async (
-    userAdmin: string | undefined, 
-    claveAdmin: string | undefined, 
     {
         usuario,
         clave,
         rol
     }: userCreate
     ) => {
-        const admin = await adminAuthentication(userAdmin, claveAdmin)
-        if(admin.success){
-            const userHashPass = await bcrypt.hash(clave, 10)
-            const data = {
-                usuario,
-                clave: userHashPass,
-                rol
+        const userHashPass = await bcrypt.hash(clave, 10)
+        const data = {
+            usuario,
+            clave: userHashPass,
+            rol
+        }
+        const dataSaved = await saveField(table, data)     
+        if(dataSaved.success){
+            return { 
+                success: dataSaved.success, 
+                message: 'Usuario creado satisfactoriamente'
             }
-            const dataSaved = await saveField(table, data)     
-            if(dataSaved.success){
-                return { 
-                    success: dataSaved.success, 
-                    message: 'Usuario creado satisfactoriamente'
-                }
-            }else return { 
-                    success: dataSaved.success, 
-                    message: 'No se ha podido guardar la información. Error: ' + dataSaved.message 
-                }           
-        }else return { message : admin.message }
+        }else return { 
+                success: dataSaved.success, 
+                message: 'No se ha podido guardar la información. Error: ' + dataSaved.message 
+        }           
+
 }
 
-export const updateUser = async(objectValues: any, objectWhere: any)=> {
-   const updatedData = await updateField(table, objectValues, objectWhere)
-   if(updatedData.success){
-    return { success: true, message: 'Usuario actualizado con exito' }
-   }else return { success: false, message: 'Error al actualizar el usuario' }
+export const updateUser = async(objectValues: any, objectWhere: any, password: string | undefined)=> {
+    let updateData = objectValues
+    console.log(updateData);
+    
+    if(password != undefined){
+          const userHashPass = await bcrypt.hash(password, 10)
+          updateData = { ...updateData, clave : userHashPass}
+    }  
+    const updatedData = await updateField(table, updateData, objectWhere)
+    if(updatedData.success){
+     return { success: true, message: 'Usuario actualizado con exito' }
+    }else return { success: false, message: 'Error al actualizar el usuario Error: '+ updatedData.message }
 } 
 
+export const listUsers = async() => {
+    const { success, data, message } = await listAllFilds(table)
+    if(success){
+        return { success, data, message}
+    }else return {
+        data: null,
+        success,
+        message: 'No se ha podido listar los usuarios. Error:' + message
+    }
+}
+
+export const delteUser = async (id: number)=> {
+    const { success, message } = await deleteField(table, { id })
+    console.log(message)
+    if(success){
+        return { success, message: 'Usuario eliminado satisfactoriamente' }
+    } return {  success, message }
+}
+
+export const userRol = async(userAdmin: string )=> {
+    const columns =[ 'rol' ] 
+    const where = {
+        usuario: userAdmin
+    }
+
+    const { success, data, message }  = await listFilds(table, columns, where )
+    if(success)return {success, data}  
+    else return { success, message }
+}

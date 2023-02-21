@@ -1,8 +1,13 @@
 import Express from 'express'
 import cors from 'cors'
+import morgan from 'morgan'
 
 import { apiRoutes } from './server/routes'
 import { setWebSocket } from './webSocket'
+import dotenv from 'dotenv'
+
+ 
+dotenv.config()
 
 const app = Express()
 const PORT = 3001
@@ -11,6 +16,7 @@ const corsOptions = {
 }
 
 // Middlewares iniciales
+app.use(morgan('dev'))
 app.use(cors(corsOptions))
 app.use(Express.json({ limit : '1000mb' }))
 app.use(Express.static( 'public'))

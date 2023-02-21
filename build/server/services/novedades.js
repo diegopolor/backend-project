@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateNovedad = exports.listNovedad = exports.createNovedad = void 0;
+exports.updateNovedad = exports.listNovedadOrderBy = exports.listNovedad = exports.createNovedad = void 0;
 const dotenv_1 = __importDefault(require("dotenv"));
 const sqlServer_1 = require("./sqlServer");
 dotenv_1.default.config();
@@ -45,11 +45,27 @@ const listNovedad = (columns, where) => __awaiter(void 0, void 0, void 0, functi
     }
     else
         return {
-            message: 'No se ha pidido listar la información. ERROR: ' + message,
+            message: 'No se ha podido listar la información. ERROR: ' + message,
             success
         };
 });
 exports.listNovedad = listNovedad;
+const listNovedadOrderBy = (columns, where, orderby, order) => __awaiter(void 0, void 0, void 0, function* () {
+    const { data, success, message } = yield (0, sqlServer_1.listFildsOrderBy)(TABLE, columns, where, orderby, order);
+    if (success) {
+        return {
+            data,
+            message: 'datos listados exitosamente',
+            success
+        };
+    }
+    else
+        return {
+            message: 'No se ha podido listar la información. ERROR: ' + message,
+            success
+        };
+});
+exports.listNovedadOrderBy = listNovedadOrderBy;
 const updateNovedad = (dataUpdate, where) => __awaiter(void 0, void 0, void 0, function* () {
     const { success, message } = yield (0, sqlServer_1.updateField)(TABLE, dataUpdate, where);
     if (success) {

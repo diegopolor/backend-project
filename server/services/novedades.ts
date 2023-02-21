@@ -52,9 +52,6 @@ export const listNovedadOrderBy = async (columns: string[], where: object, order
     }
 }
 
-
-
-
 export const updateNovedad = async (dataUpdate: object, where: object )=> {
     const { success, message } = await updateField(TABLE, dataUpdate, where)
     if(success){

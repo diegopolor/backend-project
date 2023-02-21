@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.today = exports.dateConvert = void 0;
 const dateConvert = (date) => {
-    console.log(date);
     if ((date === null || date === void 0 ? void 0 : date.search('/')) != -1) {
         const format = {
             year: date.split('/')[2],

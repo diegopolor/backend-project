@@ -5,14 +5,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const morgan_1 = __importDefault(require("morgan"));
 const routes_1 = require("./server/routes");
 const webSocket_1 = require("./webSocket");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = 3001;
 const corsOptions = {
     origin: "*"
 };
 // Middlewares iniciales
+app.use((0, morgan_1.default)('dev'));
 app.use((0, cors_1.default)(corsOptions));
 app.use(express_1.default.json({ limit: '1000mb' }));
 app.use(express_1.default.static('public'));
