@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 
 import { novedades } from "../../interfaces"
 
-import { saveField, listFilds,listFildsOrderBy , updateField } from "./sqlServer"
+import { saveField, listFilds, listFildsOrderBy , updateField } from "./sqlServer"
  
 dotenv.config()
 
@@ -38,8 +38,8 @@ export const listNovedad = async (columns: string[], where: object ) => {
     }
 }
 
-export const listNovedadOrderBy = async (columns: string[], where: object, orderby: string[], order: string[] ) => {
-    const { data, success, message } = await listFildsOrderBy(TABLE, columns, where, orderby, order)
+export const listNovedadOrderBy = async (columns: string[], where: object, orderby: string[], order: string[], between?: string ) => {
+    const { data, success, message } = await listFildsOrderBy(TABLE, columns, where, orderby, order, between)
     if(success){
         return {
             data,

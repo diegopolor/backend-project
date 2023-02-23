@@ -19,3 +19,8 @@ export interface wherePrioridad {
     gestion: string,
     destinatario?: string
 }
+
+export interface whereHistorico {
+    gestion: string
+    destinatario?: string
+}

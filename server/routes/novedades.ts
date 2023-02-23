@@ -3,6 +3,7 @@ import { Router } from "express";
 import { novedades, wherePrioridad } from "../../interfaces";
 import { rolAuthentication } from "../middlewares/authUserAdmin";
 
+import { objectToBetween } from "../utils/objectToSql";
 import { socketNovedades } from "../../webSocket";
 import { createNovedad, listNovedad, listNovedadOrderBy, updateNovedad } from "../services/novedades";
 import { today, dateConvert } from "../utils/date";
@@ -37,13 +38,65 @@ novRoutes.post('/filter',rolAuthentication,  tokenVerify, async (req, res)=> {
     const { success, data, message }  = await listNovedad(columns, where)
     if(success){
        res.status(200).json(data?.recordset)
-    }else res.status(400).json({message : 'No se pudo realizar el filtro: ' + message}).end()
+    }else res.status(400).json( { message : 'No se pudo realizar el filtro: ' + message } ).end()
 })
 
+novRoutes.post('/historico', rolAuthentication,  tokenVerify, async(req, res)=> {
+    const destinatario = String(req.body.destinatario)
+    const gestion = 'Si'
+    const columns = [
+        'id', 
+        'fecha',
+        'hora',
+        'unidad',
+        'clave',
+        'prioridad',
+        'gestion',
+        'descripcion',
+        'observacion'
+    ]
+
+    const where = destinatario !== 'Admin'? { gestion, destinatario }: { gestion }
+
+    const { success, data, message }  = await listNovedadOrderBy(columns, where, ['fecha', 'hora'], ['DESC', 'DESC'])
+    if(success){
+        res.status(200).json(data?.recordset)
+     }else res.status(400).json({ message })
+})
+
+novRoutes.post('/historicoFilter', rolAuthentication,  tokenVerify, async(req, res)=> {
+    const {  fechaInicial, fechaFinal, unidad, destinatario } = req.body  
+    const gestion = 'Si'
+    const columns = [
+        'id', 
+        'fecha',
+        'hora',
+        'unidad',
+        'clave',
+        'prioridad',
+        'gestion',
+        'descripcion',
+        'observacion'
+    ]
+
+    const between = fechaFinal && fechaFinal ? objectToBetween('fecha', fechaInicial, fechaFinal) : ''
+    let dataSend: any = {
+        gestion
+    }
+
+    dataSend = unidad ? { ...dataSend, unidad }: { ...dataSend }
+    dataSend = destinatario ? { ...dataSend, destinatario }: { ...dataSend }
+    
+    const where = {...dataSend}
+    const { success, data, message }  = await listNovedadOrderBy(columns, where, ['fecha', 'hora'], ['DESC', 'DESC'], between)
+    if(success){
+        res.status(200).json(data?.recordset)
+     }else res.status(400).json({ message })
+})
 //listar novedades filtradas
 novRoutes.post('/prioridad', rolAuthentication, tokenVerify, async (req, res)=> {
     const { prioridad, destinatario } = req.body
-    const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad', 'descripcion']
+    const columns = ['id', 'fecha', 'hora', 'unidad', 'clave', 'prioridad', 'descripcion', 'gestion']
     let where: wherePrioridad = {
         prioridad,
         gestion: 'No',

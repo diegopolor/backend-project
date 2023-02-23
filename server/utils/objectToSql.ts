@@ -1,5 +1,7 @@
 
-
+export const objectToBetween = (campo: string, start: string, end: string)=> {
+    return `${campo} BETWEEN '${start}' AND '${end}'`
+}
 
 /* Convierte un objecto en campos y valores para una consulta insert into con sus respectivos tipos de datos
 para los valores a agregar.

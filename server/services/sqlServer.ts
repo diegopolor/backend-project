@@ -24,7 +24,7 @@ export const querySQL = async (sql: string)=> {
         const db = await connectDB()
         if(db.success){
             try{
-                const Result = await db.connection?.query(sql)
+                const Result = await db.connection?.query(sql)            
                 db.connection?.close()
                 return { success: true, message: 'Query realizada', data: Result }      
             }
@@ -36,7 +36,6 @@ export const querySQL = async (sql: string)=> {
 }
 
 export const saveField = async(table: string, object: any) => {
-    
     let columnString = ''
     let valuesString = ''
     const keys = <any[]> Object.keys(object)
@@ -131,14 +130,15 @@ export const listFilds = async(table: string, columnsArray: any[], objectWhere: 
     }
 }
 
-export const listFildsOrderBy = async(table: string, columnsArray: any[], objectWhere: object, orderBy: string[], order: string[]) => {
+export const listFildsOrderBy = async(table: string, columnsArray: any[], objectWhere: object, orderBy: string[], order: string[], between:string = '') => {
     let columns = ' '
-        let orderByString= ''
 
-        orderBy.map((item, index)=> {
-            orderByString += `${item} ${order[index]},`
-        })
+    let orderByString= ''
+    orderBy.map((item, index)=> {
+        orderByString += `${item} ${order[index]},`
+    }) 
 
+    between = between !== '' ? `${between} AND`: ''
     // concatena las columnas de la consulta y les coloca un ',' al final
     columnsArray?.map((item)=> columns += item + ',')
     // toma las keys del objeto del where de la consulta 
@@ -146,11 +146,9 @@ export const listFildsOrderBy = async(table: string, columnsArray: any[], object
         const keysObjectWhere = Object.keys(objectWhere ?? {})
         //convierte el objeto en formato value sql ej. key = 'value'
         const whereValues = objectInLineWhere(keysObjectWhere, objectWhere, 'AND')
-        
         // concatena la consulta quitandole la ultima ',' al string de columnas
-        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${whereValues} ORDER BY ${orderByString.substring(0, orderByString.length -1 )};`
+        const query = `SELECT ${columns.slice(0, -1)} FROM ${table} WHERE ${between} ${whereValues} ORDER BY ${orderByString.substring(0, orderByString.length -1 )};`  
         const queryResult = await querySQL(query)
-    
         if(queryResult.success){
             return { success: true, data: queryResult.data, message: queryResult.message }
         }else return { success: false, data: undefined, message: queryResult.message }
@@ -159,7 +157,6 @@ export const listFildsOrderBy = async(table: string, columnsArray: any[], object
         message: 'Se debe ingresar columnas a filtrar y los valores de referencia para el filtro.' 
     }
 }
-
 
 export const listAllFilds = async (table: string)=> {
     const query = `SELECT * FROM ${table};`
