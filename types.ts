@@ -94,3 +94,8 @@ export interface whereHistorico {
     gestion: string
     destinatario?: string
 }
+
+export interface Prueba {
+    gestion: string
+    destinatario?: string
+}
