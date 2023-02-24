@@ -52,6 +52,8 @@ novRoutes.post('/historico', rolAuthentication,  tokenVerify, async(req, res)=> 
         'clave',
         'prioridad',
         'gestion',
+        'fecha_gestion',
+        'hora_gestion',
         'descripcion',
         'observacion'
     ]
@@ -75,6 +77,8 @@ novRoutes.post('/historicoFilter', rolAuthentication,  tokenVerify, async(req, r
         'clave',
         'prioridad',
         'gestion',
+        'fecha_gestion',
+        'hora_gestion',
         'descripcion',
         'observacion'
     ]
