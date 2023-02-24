@@ -32,10 +32,7 @@ const socketNovedades = ({
     destinatario
 } : novedades)=>{
     const socketIO = getWebSocket()
-    console.log(destinatario);
-    
-    
-    socketIO.to(destinatario).emit('novedades', {
+    socketIO.to([destinatario, "Admin"]).emit('novedades', {
         fecha,
         hora,
         unidad,
