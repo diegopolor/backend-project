@@ -25,7 +25,6 @@ export const querySQL = async (sql: string)=> {
         if(db.success){
             try{
                 const Result = await db.connection?.query(sql)            
-                db.connection?.close()
                 return { success: true, message: 'Query realizada', data: Result }      
             }
             catch(err: any){
@@ -34,6 +33,13 @@ export const querySQL = async (sql: string)=> {
         } 
         else return { success: false, message: db.message }
 }
+
+/**
+ * Función asincrónica para guardar un objeto en una tabla de la base de datos
+ * @param table - nombre de la tabla en la que se guardarán los datos
+ * @param object - objeto con los datos que se guardarán en la tabla
+ * @returns - objeto con información sobre si la operación fue exitosa o no, y un mensaje
+ */
 
 export const saveField = async(table: string, object: any) => {
     let columnString = ''
@@ -79,6 +85,13 @@ export const saveField = async(table: string, object: any) => {
         }
     } 
 }    
+
+/**
+ * Función asincrónica para guardar varios objetos en una tabla de la base de datos
+ * @param table - nombre de la tabla en la que se guardarán los datos
+ * @param object - array de objetos con los datos que se guardarán en la tabla
+ * @returns - objeto con información sobre si la operación fue exitosa o no, y un mensaje
+ */
 
 export const saveManyFields = async (table: string, object : any[])=> { 
     for(let itemObject of object ){
