@@ -24,7 +24,8 @@ export const querySQL = async (sql: string)=> {
         const db = await connectDB()
         if(db.success){
             try{
-                const Result = await db.connection?.query(sql)            
+                const Result = await db.connection?.query(sql)
+                console.log(sql)          
                 return { success: true, message: 'Query realizada', data: Result }      
             }
             catch(err: any){

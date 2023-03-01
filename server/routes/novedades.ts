@@ -42,7 +42,11 @@ novRoutes.post('/filter',rolAuthentication,  tokenVerify, async (req, res)=> {
 })
 
 novRoutes.post('/historico', rolAuthentication,  tokenVerify, async(req, res)=> {
-    const destinatario = String(req.body.destinatario)
+    const destinatario = String(req.body?.destinatario)
+    console.log(destinatario);
+    
+    const { dateToday } = today()
+    const fecha = dateConvert(dateToday)
     const gestion = 'Si'
     const columns = [
         'id', 
@@ -58,9 +62,11 @@ novRoutes.post('/historico', rolAuthentication,  tokenVerify, async(req, res)=> 
         'observacion'
     ]
 
-    const where = destinatario !== 'Admin'? { gestion, destinatario }: { gestion }
+    const where = destinatario !== 'Admin'? { gestion, destinatario, fecha }: { gestion }
 
     const { success, data, message }  = await listNovedadOrderBy(columns, where, ['fecha', 'hora'], ['DESC', 'DESC'])
+    console.log(data?.recordsets);
+    
     if(success){
         res.status(200).json(data?.recordset)
      }else res.status(400).json({ message })
