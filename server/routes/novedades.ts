@@ -46,7 +46,7 @@ novRoutes.post('/historico', rolAuthentication,  tokenVerify, async(req, res)=> 
     console.log(destinatario);
     
     const { dateToday } = today()
-    const fecha = dateConvert(dateToday)
+    const fecha_gestion = dateConvert(dateToday)
     const gestion = 'Si'
     const columns = [
         'id', 
@@ -62,7 +62,7 @@ novRoutes.post('/historico', rolAuthentication,  tokenVerify, async(req, res)=> 
         'observacion'
     ]
 
-    const where = destinatario !== 'Admin'? { gestion, destinatario, fecha }: { gestion }
+    const where = destinatario !== 'Admin'? { gestion, destinatario, fecha_gestion }: { gestion, fecha_gestion }
 
     const { success, data, message }  = await listNovedadOrderBy(columns, where, ['fecha', 'hora'], ['DESC', 'DESC'])
     console.log(data?.recordsets);
